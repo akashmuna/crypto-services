@@ -1,0 +1,229 @@
+
+#-----------------------------------------------------------------------------------------------------
+#  **
+#  ** File Name  : cryptoservices.yaml
+#  **
+#  ** Module     :
+#  **
+
+#  -------------------------------------------------------------------------------------------------------
+#
+#  CHANGE HISTORY
+#
+#  Created By         :  System
+#
+#  Bug Number         :
+#  Changed By         :
+#  Change Description :
+#  Change On          :
+#  Search String      :
+#
+#  -------------------------------------------------------------------------------------------------------
+swagger: "2.0"
+info:
+  description: "You can find out more about Swagger at [swagger.io](http://swagger.io) and about data types at [Swagger Data Types](https://swagger.io/docs/specification/data-models/data-types/)"
+  version: "1.0"
+  title: "Crypto Configuration"
+host: "localhost:8080"
+basePath: "/crypto-services"
+tags:
+  - name: CryptoServicesAggregate
+    description: "API for Crypto Services Operations"
+schemes:
+  - "http"
+paths:
+  /web/v1/cryptoservices:
+    post:
+      consumes:
+        - application/json
+        - application/xml
+      produces:
+        - application/json
+        - application/xml
+      tags:
+        - CryptoServicesAggregate
+      summary: "Submit for the Crypto domain."
+      description: "Populates Crypto aggregate and moves the latest data from all worktables to main tables."
+      operationId: "saveCryptoServices"
+      parameters:
+        - name: "cryptoServicesMasterModel"
+          in: "body"
+          description: Request Body that contains data required for creating a new Crypto Record
+          schema:
+            $ref: '#/definitions/CryptoServicesMasterModel'
+      responses:
+        201:
+          description: Returns the Id
+          headers:
+            Location:
+              description: URL
+              type: string
+          schema:
+            $ref: '#/definitions/CryptoServicesMasterModel'
+        400:
+          description: "Malformed syntax."
+        401:
+          description: "Request does not have sufficient credentials."
+        403:
+          description: "Request is not authorized."
+        405:
+          description: "Invalid input"
+        500:
+          description: "Internal error"
+    get:
+      produces:
+        - application/json
+        - application/xml
+      tags:
+        - CryptoServicesAggregate
+      summary: Retrieves the list of existing Crypto based on params.
+      description: Retrieves the list of existing Crypto with Filters.
+      operationId: getAllCryptoRecords
+      parameters:
+        - name: symbol
+          in: query
+          description: Symbol of the Crypto to be searched
+          required: false
+          type: string
+        - name: startDate
+          in: query
+          description: Starting Date in fomrat(yyyy-MM-dd) for Search Filters
+          required: false
+          type: string
+        - name: endDate
+          in: query
+          description: End Date in fomrat(yyyy-MM-dd) for Search Filters
+          required: false
+          type: string
+        - name: maxFlag
+          in: query
+          description: Boolean Flag to Get the Max Record
+          required: false
+          type: boolean
+        - name: minFlag
+          in: query
+          description: Boolean Flag to Get the Min Record
+          required: false
+          type: boolean
+        - name: oldFlag
+          in: query
+          description: Boolean Flag to Get the Oldest Record
+          required: false
+          type: boolean
+        - name: newFlag
+          in: query
+          description: Boolean Flag to Get the Newest Record
+          required: false
+          type: boolean
+      responses:
+        200:
+          description: Successful performs the operation
+          schema:
+            $ref: '#/definitions/CryptoServicesMasterCollection'
+        400:
+          description: Malformed syntax.
+        401:
+          description: Request does not have sufficient credentials.
+        403:
+          description: Request is not authorized.
+        500:
+          description: Internal error
+  /web/v1/cryptoservices/normalized:
+    get:
+      produces:
+        - application/json
+        - application/xml
+      tags:
+        - CryptoServicesAggregate
+      summary: Retrieves all the Crypto in descending order of Normalized Range comparision.
+      description: Retrieves the list of existing Crypto with Normalized Range comparision.
+      operationId: getNormalizedCrypto
+      parameters:
+        - name: startDate
+          in: query
+          description: Starting Date in fomrat(yyyy-MM-dd) for Search Filters
+          required: false
+          type: string
+        - name: endDate
+          in: query
+          description: End Date in fomrat(yyyy-MM-dd) for Search Filters
+          required: false
+          type: string
+        - name: highestFlag
+          in: query
+          description: End Date for Search Filters
+          required: false
+          type: boolean
+      responses:
+        200:
+          description: Successful performs the operation
+          schema:
+            $ref: '#/definitions/CryptoServicesMasterCollection'
+        400:
+          description: Malformed syntax.
+        401:
+          description: Request does not have sufficient credentials.
+        403:
+          description: Request is not authorized.
+        500:
+          description: Internal error
+
+
+definitions:
+  CryptoServicesMasterModel:
+    description: CryptoServicesMasterModel
+    type: object
+    required:
+      - updatedDate
+      - price
+      - symbol
+    properties:
+      id:
+        description: Id of the record
+        type: string
+      updatedDate:
+        description: Updated Date (example 2022-02-25 01:21:32)
+        type: string
+      symbol:
+        description: Symbol Code
+        type: string
+      price:
+        description: Price
+        type: number
+      errorStatus:
+        description: Error Message
+        type: string
+      compNormalizedPrice:
+        description: Compared Normalized Price
+        type: number
+      cryptoProp:
+        $ref: '#/definitions/CryptoPropertiesMasterModel'
+
+  CryptoPropertiesMasterModel:
+    description: CryptoPropertiesMasterModel details of each Crypto Max,Min,Normalized Range
+    type: object
+    properties:
+      min:
+        description: Minimum price of the Crypto
+        type: number
+      max:
+        description: Maximum price of the Crypto
+        type: number
+      oldest:
+        description: oldest price of the Crypto
+        type: number
+      newest:
+        description: Newest price of the Crypto
+        type: number
+      normRange:
+        description: Normalized Range of that Crypto
+        type: number
+
+  CryptoServicesMasterCollection:
+    description: Collection of CryptoServicesMasterModel.
+    type: object
+    properties:
+      cryptoServicesMasterModelList:
+        type: array
+        items:
+          $ref: '#/definitions/CryptoServicesMasterModel'

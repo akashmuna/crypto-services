@@ -1,0 +1,36 @@
+cryptoservice:
+  dirpath: ${DIR_PATH:classpath:/prices}
+  env: ${ENV:local}
+spring:
+  datasource:
+    username: sa
+    url: ${DATABASE_SERVER:jdbc:h2:mem:testdb}
+    driverClassName: org.h2.Driver
+    password: password
+  h2:
+    console:
+      enabled: 'true'
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+  cache:
+    cache-names:
+      - buckets_api
+    caffeine:
+      spec: maximumSize=1000000,expireAfterAccess=3600s
+
+bandwidths: &myBandwidths
+  - capacity: 50
+    time: 1
+    unit: hours
+
+rate_limits: &myRateLimits
+  - expression: getRemoteAddr()
+    bandwidths: *myBandwidths
+
+bucket4j:
+  enabled: true
+  filter-method: servlet
+  filters:
+    - cache-name: buckets_api
+      url: .* # You can specify a regex
+      rate-limits: *myRateLimits
